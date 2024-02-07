@@ -137,7 +137,10 @@ def get_platform_imgui_lib_name() -> str:
 	return f'imgui_{system.lower()}_{processor}.{binary_ext}'
 
 def run_vcvars(cmd: typing.List[str], what):
-	assertx(subprocess.run(f"vcvarsall.bat x64 && {' '.join(cmd)}").returncode == 0, f"Failed to run command '{cmd}'")
+	should_run_vcvarsall = platform.system() == "Windows" and not "-no_vcvarsall" in sys.argv
+	command = "vcvarsall.bat x64" if should_run_vcvarsall else "" + ' '.join(cmd)
+
+	assertx(subprocess.run(command).returncode == 0, f"Failed to run command '{cmd}'")
 
 # TODO[TS]: This works, but there's a bug in Python, which makes cl.exe return with
 # exit code 2 for no god damn reason at all, if not run with run_vcvars.
